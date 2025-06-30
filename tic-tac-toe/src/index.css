@@ -46,11 +46,13 @@ body {
   background: transparent;
   border: 2px solid #eee;
   color: #eee;
-  width: 100px;
+  width: 125px;
   border-radius: 5px;
   transition: 0.2s;
   font-weight: bold;
   cursor: pointer;
+  background-color: #09f;
+  font-size: large;
 }
 
 .board button:hover {
@@ -128,3 +130,19 @@ body {
   cursor: pointer;
   font-size: 48px;
 }
+
+.menssaje-win-complete{
+  border: 2px solid #eee;
+  border-radius: 5px;
+  font-size: 48px;
+  height: 100px;
+  text-align: center;
+  display: grid;
+  place-items: center;
+}
+
+
+.menssaje-win{
+  display: none;
+}
+
