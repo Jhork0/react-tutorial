@@ -1,24 +1,43 @@
 
 import { useState } from 'react'
 import './App.css'
-import Mensaje from './Mensaje.tsx'
-import Square from './Square.tsx'
+import Mensaje from './Mensaje'
+import Square from './Square'
 import {EstadoJuego, Turns, COMBINACIONES_GANADORAS} from './constantes.ts'
+import confetti from 'canvas-confetti'
+import { Toast } from './Toast.tsx'
 
 
 function App() {
   
-const [board,setBoard] = useState( Array(9).fill(null))
-const [turn,setTurn] = useState( Turns.X)
+const [board,setBoard] = useState( ()=>{ 
+  // inicializa el estado el cual solo se puede inicializar una vez
+  const boardFromLocalStorage = window.localStorage.getItem('Board')
+  return boardFromLocalStorage ? JSON.parse(boardFromLocalStorage) : Array(9).fill(null)
+
+})
+const [turn,setTurn] = useState( ()=>{
+  const turnFromLocalStorage = window.localStorage.getItem('Turn')
+  return turnFromLocalStorage ?? Turns.X 
+ })
+
 const [estadoGames,setEstadoGames] = useState(EstadoJuego.Jugando)
 const [ganador, setGanador] = useState<string | null>(null)
+const [showToast, setShowToast] = useState(false);
 
 const resetGame = () => {
   setBoard(Array(9).fill(null))
   setTurn(Turns.X)
   setEstadoGames(EstadoJuego.Jugando)
   setGanador(null)
+  window.localStorage.removeItem('Board')
+  window.localStorage.removeItem('Turn')
+
 }
+const isEmpate = (newBoard: (string | null)[]) => {
+  return newBoard.every((square) => square !== null)
+}
+
 
   const comprobarGanador = (tablero: (string | null)[]) => {
   for (const combo of COMBINACIONES_GANADORAS) {
@@ -40,19 +59,25 @@ const updateBoard = ( index: number ) => {
   newBoard[index] = turn
   setBoard(newBoard)
 
-  const newTrun = turn === Turns.O ? Turns.X : Turns.O   
-  setTurn(newTrun)
+  const newTurn = turn === Turns.O ? Turns.X : Turns.O   
+  setTurn(newTurn)
 
-const ganador = comprobarGanador(newBoard)
-  if (ganador) {
-    setEstadoGames(EstadoJuego.Ganador)
-    setGanador(ganador)
-    return
-  }
+  window.localStorage.setItem('Turn', newTurn)
+  window.localStorage.setItem('Board', JSON.stringify(newBoard))
 
-  if(newBoard.find(elemento => elemento == null) == false){
+
+  const ganador = comprobarGanador(newBoard)
+    if (ganador) {
+      setEstadoGames(EstadoJuego.Ganador)
+      setGanador(ganador)
+      confetti()
+      return
+    } else if(isEmpate(newBoard)) {
     setEstadoGames(EstadoJuego.Empate)
+    setShowToast(true);
   }
+
+
  
 }
 
@@ -65,7 +90,7 @@ const ganador = comprobarGanador(newBoard)
         <button className='button-reinicio' onClick={resetGame}>Reiniciar juego</button>
         <section className='game'>
            {             /* Fundamental esa n  */}
-          {board.map(( n , index) => {
+          {board.map((n: string | null, index: number) => {
             return (
               <Square key={index}  index={index} hanldleClick={updateBoard}>
                  {board[index]}
@@ -80,6 +105,13 @@ const ganador = comprobarGanador(newBoard)
         </section>
         <section>
           <Mensaje ganador={ganador}/>
+          {showToast && (
+        <Toast
+         message="¡Empate!"
+          onClose={() => setShowToast(false)}
+         />
+        )}
+
         </section>
       </main>
     </>
@@ -87,3 +119,7 @@ const ganador = comprobarGanador(newBoard)
 }
 
 export default App
+
+
+
+
