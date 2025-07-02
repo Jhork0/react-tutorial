@@ -63,8 +63,7 @@ const updateBoard = ( index: number ) => {
   setTurn(newTurn)
 
   window.localStorage.setItem('Turn', newTurn)
-  window.localStorage.setItem('Board', JSON.stringify(newBoard))
-
+  window.localStorage.setItem('Board', JSON.stringify(newBoard))  
 
   const ganador = comprobarGanador(newBoard)
     if (ganador) {
@@ -93,7 +92,7 @@ const updateBoard = ( index: number ) => {
           {board.map((n: string | null, index: number) => {
             return (
               <Square key={index}  index={index} hanldleClick={updateBoard}>
-                 {board[index]}
+                 {n}
               </Square>
             )
           })
